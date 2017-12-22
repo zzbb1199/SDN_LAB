@@ -1,0 +1,274 @@
+{
+    "application": {
+        "dpctl": "",
+        "ipBase": "10.0.0.0/8",
+        "netflow": {
+            "nflowAddId": "0",
+            "nflowTarget": "",
+            "nflowTimeout": "600"
+        },
+        "openFlowVersions": {
+            "ovsOf10": "1",
+            "ovsOf11": "0",
+            "ovsOf12": "0",
+            "ovsOf13": "1"
+        },
+        "sflow": {
+            "sflowHeader": "128",
+            "sflowPolling": "30",
+            "sflowSampling": "400",
+            "sflowTarget": ""
+        },
+        "startCLI": "1",
+        "switchType": "ovs",
+        "terminalType": "xterm"
+    },
+    "controllers": [
+        {
+            "opts": {
+                "controllerProtocol": "tcp",
+                "controllerType": "remote",
+                "hostname": "c0",
+                "remoteIP": "127.0.0.1",
+                "remotePort": 6633
+            },
+            "x": "473.0",
+            "y": "57.0"
+        }
+    ],
+    "hosts": [
+        {
+            "number": "2",
+            "opts": {
+                "hostname": "h2",
+                "ip": "10.0.1.1",
+                "nodeNum": 2,
+                "sched": "host"
+            },
+            "x": "822.0",
+            "y": "350.0"
+        },
+        {
+            "number": "1",
+            "opts": {
+                "hostname": "h1",
+                "ip": "10.0.0.1",
+                "nodeNum": 1,
+                "sched": "host"
+            },
+            "x": "111.0",
+            "y": "349.0"
+        }
+    ],
+    "links": [
+        {
+            "dest": "s1",
+            "opts": {
+                "delay": "1"
+            },
+            "src": "h1"
+        },
+        {
+            "dest": "s5",
+            "opts": {
+                "delay": "2"
+            },
+            "src": "h1"
+        },
+        {
+            "dest": "h2",
+            "opts": {
+                "delay": "9"
+            },
+            "src": "s4"
+        },
+        {
+            "dest": "h2",
+            "opts": {
+                "delay": "10"
+            },
+            "src": "s8"
+        },
+        {
+            "dest": "s2",
+            "opts": {
+                "delay": "30000"
+            },
+            "src": "s1"
+        },
+        {
+            "dest": "s3",
+            "opts": {
+                "delay": "50000"
+            },
+            "src": "s2"
+        },
+        {
+            "dest": "s4",
+            "opts": {
+                "delay": "70000"
+            },
+            "src": "s3"
+        },
+        {
+            "dest": "s6",
+            "opts": {
+                "delay": "40000"
+            },
+            "src": "s5"
+        },
+        {
+            "dest": "s7",
+            "opts": {
+                "delay": "60000"
+            },
+            "src": "s6"
+        },
+        {
+            "dest": "s8",
+            "opts": {
+                "delay": "80000"
+            },
+            "src": "s7"
+        }
+    ],
+    "switches": [
+        {
+            "number": "1",
+            "opts": {
+                "controllers": [
+                    "c0"
+                ],
+                "dpid": "0000000000000001",
+                "hostname": "s1",
+                "netflow": "0",
+                "nodeNum": 1,
+                "sflow": "0",
+                "switchIP": "",
+                "switchType": "ovs"
+            },
+            "x": "263.0",
+            "y": "260.0"
+        },
+        {
+            "number": "4",
+            "opts": {
+                "controllers": [
+                    "c0"
+                ],
+                "dpid": "0000000000000004",
+                "hostname": "s4",
+                "netflow": "0",
+                "nodeNum": 4,
+                "sflow": "0",
+                "switchIP": "",
+                "switchType": "default"
+            },
+            "x": "715.0",
+            "y": "289.0"
+        },
+        {
+            "number": "3",
+            "opts": {
+                "controllers": [
+                    "c0"
+                ],
+                "dpid": "0000000000000003",
+                "hostname": "s3",
+                "netflow": "0",
+                "nodeNum": 3,
+                "sflow": "0",
+                "switchIP": "",
+                "switchType": "default"
+            },
+            "x": "551.0",
+            "y": "227.0"
+        },
+        {
+            "number": "8",
+            "opts": {
+                "controllers": [
+                    "c0"
+                ],
+                "dpid": "0000000000000008",
+                "hostname": "s8",
+                "netflow": "0",
+                "nodeNum": 8,
+                "sflow": "0",
+                "switchIP": "",
+                "switchType": "ovs"
+            },
+            "x": "724.0",
+            "y": "406.0"
+        },
+        {
+            "number": "5",
+            "opts": {
+                "controllers": [
+                    "c0"
+                ],
+                "dpid": "0000000000000005",
+                "hostname": "s5",
+                "netflow": "0",
+                "nodeNum": 5,
+                "sflow": "0",
+                "switchIP": "",
+                "switchType": "ovs"
+            },
+            "x": "259.0",
+            "y": "387.0"
+        },
+        {
+            "number": "2",
+            "opts": {
+                "controllers": [
+                    "c0"
+                ],
+                "dpid": "0000000000000002",
+                "hostname": "s2",
+                "netflow": "0",
+                "nodeNum": 2,
+                "sflow": "0",
+                "switchIP": "",
+                "switchType": "ovs"
+            },
+            "x": "386.0",
+            "y": "227.0"
+        },
+        {
+            "number": "6",
+            "opts": {
+                "controllers": [
+                    "c0"
+                ],
+                "dpid": "0000000000000006",
+                "hostname": "s6",
+                "netflow": "0",
+                "nodeNum": 6,
+                "sflow": "0",
+                "switchIP": "",
+                "switchType": "ovs"
+            },
+            "x": "402.0",
+            "y": "434.0"
+        },
+        {
+            "number": "7",
+            "opts": {
+                "controllers": [
+                    "c0"
+                ],
+                "dpid": "0000000000000007",
+                "hostname": "s7",
+                "netflow": "0",
+                "nodeNum": 7,
+                "sflow": "0",
+                "switchIP": "",
+                "switchType": "ovs"
+            },
+            "x": "556.0",
+            "y": "435.0"
+        }
+    ],
+    "version": "2"
+}
