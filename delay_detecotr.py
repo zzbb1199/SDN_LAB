@@ -18,6 +18,9 @@ from __future__ import division
 
 from pprint import pprint
 
+import copy
+import inf as inf
+
 from ryu.lib.packet import packet, arp, ethernet, ipv4
 from ryu.topology import switches
 
@@ -52,7 +55,6 @@ class NetworkDelayDetector(app_manager.RyuApp):
         'switches':switches.Switches,
     }
 
-
     def __init__(self, *args, **kwargs):
         super(NetworkDelayDetector, self).__init__(*args, **kwargs)
         self.name = 'delaydetector'
@@ -66,7 +68,8 @@ class NetworkDelayDetector(app_manager.RyuApp):
         self.sw_module = kwargs['switches']
         self.awareness = kwargs['network_awareness']
         self.weight = 'delay'
-        self.adj_m = {}
+        self.adj_m = None
+
 
         self.datapaths = {}
         self.echo_latency = {}
@@ -174,9 +177,13 @@ class NetworkDelayDetector(app_manager.RyuApp):
                         self.awareness.graph[src][dst]['delay'] = 0
                         continue
                     delay = self.get_delay(src, dst)
-                    temp = {dst:delay}
-                    self.adj_m[src] = temp
                     self.awareness.graph[src][dst]['delay'] = delay
+                    try:
+                        self.adj_m[src-1][dst-1] = delay
+                    except:
+                        self.adj_m = [[inf]*len(self.awareness.graph) for i in range(len(self.awareness.graph))]
+                        self.adj_m[src-1][dst-1] = delay
+                        print(self.adj_m[src-1][dst-1])
         except:
             if self.awareness is None:
                 self.awareness = lookup_service_brick('awareness')
@@ -208,9 +215,15 @@ class NetworkDelayDetector(app_manager.RyuApp):
             self.logger.info("---------------------------")
             for src in self.awareness.graph:
                 for dst in self.awareness.graph[src]:
-                    if src < dst:
+                    try:
                         delay = self.awareness.graph[src][dst]['delay']
                         self.logger.info("%s<-->%s : %s" % (src, dst, delay))
+                    except:
+                        break
+
+
+
+
 
 
 
@@ -480,15 +493,81 @@ class NetworkDelayDetector(app_manager.RyuApp):
             src_sw, dst_sw = result[0], result[1]
             if dst_sw:
                 # Path has already calculated, just get it.
-                path = self.get_path(src_sw, dst_sw, weight=self.weight)
+                # path = self.get_path(src_sw, dst_sw, weight=self.weight)
+                path = self._get_min_path()
                 self.logger.info("[PATH]%s<-->%s: %s" % (ip_src, ip_dst, path))
                 flow_info = (eth_type, ip_src, ip_dst, in_port)
+                # modify
+                path = self.get_path(src_sw, dst_sw, weight=self.weight)
+
                 # install flow entries to datapath along side the path.
                 self.install_flow(self.datapaths,
                                   self.awareness.link_to_port,
                                   self.awareness.access_table, path,
                                   flow_info, msg.buffer_id, msg.data)
         return
+
+
+    def     _get_min_path(self):
+        # "Floyd"
+        num = len(self.adj_m)
+        min_adj = copy.deepcopy(self.adj_m)
+        for k in range(num):
+            #row
+            row = self.adj_m[k]
+            col = self._get_col(k)
+            for i in range(num):
+                for j in range(num):
+                    if row[i] + col[j] < self.adj_m[i][j]:
+                        min_adj[i][j] = row[i] + col[j]
+        #"select"
+        visted = [False]*num
+        paths = []
+        for i in range(len(visted)):
+            if not visted[i]:
+                visted[i] = True
+                currentG = min_adj[i]
+                value = 0
+                vist_G = []
+                vist_G.append(i)
+                while(True):
+                    min,next_index = self._choose_next_point(visted,currentG)
+                    if next_index != -1:
+                        visted[next_index] = True
+                        vist_G.append(next_index)
+                        value = value + min
+                        currentG = min_adj[next_index]
+                    else:
+                        break
+                # has choose one way
+                # generate infos
+                paths.append({"path_value":value,"vist_point":vist_G})
+        # choose min value
+        value = inf
+        vist_point = None
+        for each in paths:
+            if value>each["path_value"]:
+                value = each["path_value"]
+                vist_point = each["vist_point"]
+        print('min_value is:%f'%value)
+        return list(map(lambda x:x+1,vist_point))
+
+    def _choose_next_point(self,visted,G):
+        min = inf
+        best_index = -1
+        for v in range(len(visted)):
+            if not visted[v]:
+                if min > G[v]:
+                    min = G[v]
+                    best_index = v
+        return min,best_index
+
+    def _get_col(self,k):
+        col = []
+        for i in self.adj_m:
+            col.append(i[k])
+        return col
+
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):

@@ -16,6 +16,7 @@
 
 # conding=utf-8
 import logging
+import random
 import struct
 import copy
 from pprint import pprint
